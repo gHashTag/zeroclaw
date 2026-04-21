@@ -15,9 +15,7 @@ WORKDIR /app
 ARG ZEROCLAW_CARGO_FEATURES=""
 
 # Install build dependencies
-RUN --mount=type=cache,id=s/b0abd03e-ac0a-45e8-ab69-3f819dbb9321-var-cache-apt,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=s/b0abd03e-ac0a-45e8-ab69-3f819dbb9321-var-lib-apt,target=/var/lib/apt,sharing=locked \
-    apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y \
         pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
@@ -51,13 +49,7 @@ RUN mkdir -p src benches apps/tauri/src \
     && echo "fn main() {}" > apps/tauri/src/main.rs \
     && echo "fn main() {}" > apps/tauri/build.rs \
     && for d in crates/*/; do mkdir -p "${d}src" && printf '' > "${d}src/lib.rs"; done
-RUN --mount=type=cache,id=s/b0abd03e-ac0a-45e8-ab69-3f819dbb9321-cargo-registry,target=/usr/local/cargo/registry,sharing=locked \
-    --mount=type=cache,id=s/b0abd03e-ac0a-45e8-ab69-3f819dbb9321-cargo-git,target=/usr/local/cargo/git,sharing=locked \
-    if [ -n "$ZEROCLAW_CARGO_FEATURES" ]; then \
-      cargo build --release --locked --features "$ZEROCLAW_CARGO_FEATURES"; \
-    else \
-      cargo build --release --locked; \
-    fi
+RUN cargo build --release --locked
 RUN rm -rf src benches
 
 # 2. Copy only build-relevant source paths (avoid cache-busting on docs/tests/scripts)
@@ -65,10 +57,7 @@ COPY src/ src/
 COPY benches/ benches/
 COPY *.rs .
 RUN touch src/main.rs
-RUN --mount=type=cache,id=s/b0abd03e-ac0a-45e8-ab69-3f819dbb9321-cargo-registry,target=/usr/local/cargo/registry,sharing=locked \
-    --mount=type=cache,id=s/b0abd03e-ac0a-45e8-ab69-3f819dbb9321-cargo-git,target=/usr/local/cargo/git,sharing=locked \
-    rm -rf target && \
-    cargo build --release --locked && \
+RUN cargo build --release --locked && \
     cp target/release/zeroclaw /app/zeroclaw && \
     strip /app/zeroclaw
 RUN size=$(stat -c%s /app/zeroclaw) && \
