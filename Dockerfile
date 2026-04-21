@@ -19,8 +19,7 @@ RUN apt-get update && apt-get install -y \
         pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
-# 1. Copy manifests to cache dependencies
-COPY Cargo.toml Cargo.lock ./
+# Workspace manifest is not needed - crates have their own workspace links
 # Copy every workspace-member manifest to cache dependencies
 # aardvark-sys has an implicit build script (build.rs at its crate root)
 COPY crates/aardvark-sys/Cargo.toml crates/aardvark-sys/build.rs ./
