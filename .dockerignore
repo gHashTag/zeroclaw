@@ -1,3 +1,7 @@
+# Railway build context exclusions - root manifests cause workspace conflicts
+Cargo.toml
+Cargo.lock
+
 # Git history (may contain old secrets)
 .git
 .gitignore
@@ -5,10 +9,6 @@
 
 # Rust build artifacts (can be multiple GB)
 target
-
-# Root workspace manifest (copied by Railway context, causes workspace resolution conflict)
-Cargo.toml
-Cargo.lock
 
 # Documentation and examples (not needed for runtime)
 docs
@@ -40,7 +40,7 @@ tests
 # Cargo deny config (lint tool, not runtime)
 deny.toml
 
-# License file (not needed for runtime)
+# License file (not needed in runtime)
 LICENSE
 
 # Temporary files
