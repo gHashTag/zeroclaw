@@ -6,6 +6,10 @@
 # Rust build artifacts (can be multiple GB)
 target
 
+# Root workspace manifest (copied by Railway context, causes workspace resolution conflict)
+Cargo.toml
+Cargo.lock
+
 # Documentation and examples (not needed for runtime)
 docs
 examples
