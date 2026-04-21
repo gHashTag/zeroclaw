@@ -54,6 +54,7 @@ RUN mkdir -p src benches apps/tauri/src \
 RUN --mount=type=cache,id=s/b0abd03e-ac0a-45e8-ab69-3f819dbb9321-cargo-registry,target=/usr/local/cargo/registry,sharing=locked \
     --mount=type=cache,id=s/b0abd03e-ac0a-45e8-ab69-3f819dbb9321-cargo-git,target=/usr/local/cargo/git,sharing=locked \
     --mount=type=cache,id=s/b0abd03e-ac0a-45e8-ab69-3f819dbb9321-app-target,target=/app/target,sharing=locked \
+    rm -rf target && \
     if [ -n "$ZEROCLAW_CARGO_FEATURES" ]; then \
       cargo build --release --locked --features "$ZEROCLAW_CARGO_FEATURES"; \
     else \
@@ -69,14 +70,8 @@ RUN touch src/main.rs
 RUN --mount=type=cache,id=s/b0abd03e-ac0a-45e8-ab69-3f819dbb9321-cargo-registry,target=/usr/local/cargo/registry,sharing=locked \
     --mount=type=cache,id=s/b0abd03e-ac0a-45e8-ab69-3f819dbb9321-cargo-git,target=/usr/local/cargo/git,sharing=locked \
     --mount=type=cache,id=s/b0abd03e-ac0a-45e8-ab69-3f819dbb9321-app-target,target=/app/target,sharing=locked \
-    rm -rf target/release/.fingerprint/zeroclawlabs-* \
-           target/release/deps/zeroclawlabs-* \
-           target/release/incremental/zeroclawlabs-* && \
-    if [ -n "$ZEROCLAW_CARGO_FEATURES" ]; then \
-      cargo build --release --locked --features "$ZEROCLAW_CARGO_FEATURES"; \
-    else \
-      cargo build --release --locked; \
-    fi && \
+    rm -rf target && \
+    cargo build --release --locked && \
     cp target/release/zeroclaw /app/zeroclaw && \
     strip /app/zeroclaw
 RUN size=$(stat -c%s /app/zeroclaw) && \
