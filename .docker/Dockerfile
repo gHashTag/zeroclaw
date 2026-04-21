@@ -19,29 +19,29 @@ RUN apt-get update && apt-get install -y \
         pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy workspace root - required for Cargo to find workspace members
+# Copy workspace root - REQUIRED for workspace inheritance
 COPY Cargo.toml Cargo.lock ./
 
-# Copy every workspace-member manifest
-COPY crates/aardvark-sys/Cargo.toml crates/aardvark-sys/build.rs ./
-COPY crates/robot-kit/Cargo.toml ./
-COPY crates/zeroclaw-api/Cargo.toml ./
-COPY crates/zeroclaw-channels/Cargo.toml ./
-COPY crates/zeroclaw-config/Cargo.toml ./
-COPY crates/zeroclaw-gateway/Cargo.toml ./
-COPY crates/zeroclaw-hardware/Cargo.toml ./
-COPY crates/zeroclaw-infra/Cargo.toml ./
-COPY crates/zeroclaw-macros/Cargo.toml ./
-COPY crates/zeroclaw-memory/Cargo.toml ./
-COPY crates/zeroclaw-plugins/Cargo.toml ./
-COPY crates/zeroclaw-providers/Cargo.toml ./
-COPY crates/zeroclaw-runtime/Cargo.toml ./
-COPY crates/zeroclaw-tool-call-parser/Cargo.toml ./
-COPY crates/zeroclaw-tools/Cargo.toml ./
-COPY crates/zeroclaw-tui/Cargo.toml ./
-COPY apps/tauri/Cargo.toml apps/tauri/Cargo.toml
+# Copy workspace members to their correct paths (NOT flattened into /app)
+COPY crates/aardvark-sys/Cargo.toml crates/aardvark-sys/build.rs crates/aardvark-sys/
+COPY crates/robot-kit/Cargo.toml crates/robot-kit/
+COPY crates/zeroclaw-api/Cargo.toml crates/zeroclaw-api/
+COPY crates/zeroclaw-channels/Cargo.toml crates/zeroclaw-channels/
+COPY crates/zeroclaw-config/Cargo.toml crates/zeroclaw-config/
+COPY crates/zeroclaw-gateway/Cargo.toml crates/zeroclaw-gateway/
+COPY crates/zeroclaw-hardware/Cargo.toml crates/zeroclaw-hardware/
+COPY crates/zeroclaw-infra/Cargo.toml crates/zeroclaw-infra/
+COPY crates/zeroclaw-macros/Cargo.toml crates/zeroclaw-macros/
+COPY crates/zeroclaw-memory/Cargo.toml crates/zeroclaw-memory/
+COPY crates/zeroclaw-plugins/Cargo.toml crates/zeroclaw-plugins/
+COPY crates/zeroclaw-providers/Cargo.toml crates/zeroclaw-providers/
+COPY crates/zeroclaw-runtime/Cargo.toml crates/zeroclaw-runtime/
+COPY crates/zeroclaw-tool-call-parser/Cargo.toml crates/zeroclaw-tool-call-parser/
+COPY crates/zeroclaw-tools/Cargo.toml crates/zeroclaw-tools/
+COPY crates/zeroclaw-tui/Cargo.toml crates/zeroclaw-tui/
+COPY apps/tauri/Cargo.toml apps/tauri/
 
-# Create dummy targets for all workspace members so manifest parsing succeeds.
+# Create dummy targets in correct workspace structure
 RUN mkdir -p src benches apps/tauri/src \
     && echo "fn main() {}" > src/main.rs \
     && echo "" > src/lib.rs \
@@ -50,10 +50,10 @@ RUN mkdir -p src benches apps/tauri/src \
     && echo "fn main() {}" > apps/tauri/build.rs \
     && for d in crates/*/; do mkdir -p "${d}src" && printf '' > "${d}src/lib.rs"; done
 
-# Build - no cache mounts for Railway compatibility
+# Build
 RUN cargo build --release --locked
 
-# Copy only build-relevant source paths (avoid cache-busting on docs/tests/scripts)
+# Copy source code
 COPY src/ src/
 COPY benches/ benches/
 COPY *.rs .
@@ -64,7 +64,7 @@ RUN cargo build --release --locked && \
 RUN size=$(stat -c%s /app/zeroclaw) && \
     if [ "$size" -lt 1000000 ]; then echo "ERROR: binary too small (${size} bytes), likely dummy build artifact" && exit 1; fi
 
-# Prepare runtime directory structure and default config inline (no extra stage)
+# Prepare runtime directory structure
 RUN mkdir -p /zeroclaw-data/.zeroclaw /zeroclaw-data/workspace && \
     printf '%s\n' \
         'workspace_dir = "/zeroclaw-data/workspace"' \
@@ -94,8 +94,6 @@ COPY --from=builder /app/zeroclaw /usr/local/bin/zeroclaw
 COPY --from=builder /zeroclaw-data /zeroclaw-data
 COPY --from=web-builder /web/dist /zeroclaw-data/web/dist
 
-# Environment setup
-# Ensure UTF-8 locale so CJK / multibyte input is handled correctly
 ENV LANG=C.UTF-8
 ENV ZEROCLAW_WORKSPACE=/zeroclaw-data/workspace
 ENV HOME=/zeroclaw-data
