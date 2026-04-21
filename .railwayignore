@@ -1,0 +1,4 @@
+# Railway build context exclusions
+# Only exclude root manifests - preserve crate workspace structure
+Cargo.toml
+Cargo.lock
