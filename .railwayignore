@@ -1,4 +1,0 @@
-# Railway-specific build context exclusions
-# Root workspace manifests cause workspace resolution conflicts
-Cargo.toml
-Cargo.lock
