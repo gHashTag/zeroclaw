@@ -23,13 +23,24 @@ RUN --mount=type=cache,id=s/b0abd03e-ac0a-45e8-ab69-3f819dbb9321-var-cache-apt,t
 
 # 1. Copy manifests to cache dependencies
 COPY Cargo.toml Cargo.lock ./
-# Copy every workspace-member manifest in one glob — adding or removing a crate
-# no longer requires editing this file.  --parents preserves the
-# crates/<name>/Cargo.toml directory structure.
-# aardvark-sys has an implicit build script (build.rs at its crate root) that
-# Cargo must compile during the dependency pre-fetch step; copy it explicitly.
-COPY --parents crates/*/Cargo.toml ./
-COPY --parents crates/aardvark-sys/build.rs ./
+# Copy every workspace-member manifest to cache dependencies
+# aardvark-sys has an implicit build script (build.rs at its crate root)
+COPY crates/aardvark-sys/Cargo.toml crates/aardvark-sys/build.rs ./
+COPY crates/robot-kit/Cargo.toml ./
+COPY crates/zeroclaw-api/Cargo.toml ./
+COPY crates/zeroclaw-channels/Cargo.toml ./
+COPY crates/zeroclaw-config/Cargo.toml ./
+COPY crates/zeroclaw-gateway/Cargo.toml ./
+COPY crates/zeroclaw-hardware/Cargo.toml ./
+COPY crates/zeroclaw-infra/Cargo.toml ./
+COPY crates/zeroclaw-macros/Cargo.toml ./
+COPY crates/zeroclaw-memory/Cargo.toml ./
+COPY crates/zeroclaw-plugins/Cargo.toml ./
+COPY crates/zeroclaw-providers/Cargo.toml ./
+COPY crates/zeroclaw-runtime/Cargo.toml ./
+COPY crates/zeroclaw-tool-call-parser/Cargo.toml ./
+COPY crates/zeroclaw-tools/Cargo.toml ./
+COPY crates/zeroclaw-tui/Cargo.toml ./
 # apps/tauri: .dockerignore whitelists only Cargo.toml; src and build.rs are stubbed below.
 COPY apps/tauri/Cargo.toml apps/tauri/Cargo.toml
 # Create dummy targets for all workspace members so manifest parsing succeeds.
