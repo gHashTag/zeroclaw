@@ -15,8 +15,8 @@ WORKDIR /app
 ARG ZEROCLAW_CARGO_FEATURES="channel-lark,whatsapp-web"
 
 # Install build dependencies
-RUN --mount=type=cache,id=zeroclaw-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=zeroclaw-apt-lib,target=/var/lib/apt,sharing=locked \
+RUN --mount=type=cache,id=cacheKey:zeroclaw-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=cacheKey:zeroclaw-apt-lib,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y \
         pkg-config \
     && rm -rf /var/lib/apt/lists/*
@@ -40,9 +40,9 @@ RUN mkdir -p src benches apps/tauri/src \
     && echo "fn main() {}" > apps/tauri/src/main.rs \
     && echo "fn main() {}" > apps/tauri/build.rs \
     && for d in crates/*/; do mkdir -p "${d}src" && printf '' > "${d}src/lib.rs"; done
-RUN --mount=type=cache,id=zeroclaw-cargo-registry,cacheKey=zeroclaw-cargo-registry,target=/usr/local/cargo/registry,sharing=locked \
-    --mount=type=cache,id=zeroclaw-cargo-git,cacheKey=zeroclaw-cargo-git,target=/usr/local/cargo/git,sharing=locked \
-    --mount=type=cache,id=zeroclaw-target,cacheKey=zeroclaw-target,target=/app/target,sharing=locked \
+RUN --mount=type=cache,id=cacheKey:zeroclaw-cargo-registry,target=/usr/local/cargo/registry,sharing=locked \
+    --mount=type=cache,id=cacheKey:zeroclaw-cargo-git,target=/usr/local/cargo/git,sharing=locked \
+    --mount=type=cache,id=cacheKey:zeroclaw-target,target=/app/target,sharing=locked \
     if [ -n "$ZEROCLAW_CARGO_FEATURES" ]; then \
       cargo build --release --locked --features "$ZEROCLAW_CARGO_FEATURES"; \
     else \
@@ -55,9 +55,9 @@ COPY src/ src/
 COPY benches/ benches/
 COPY *.rs .
 RUN touch src/main.rs
-RUN --mount=type=cache,id=zeroclaw-cargo-registry,cacheKey=zeroclaw-cargo-registry,target=/usr/local/cargo/registry,sharing=locked \
-    --mount=type=cache,id=zeroclaw-cargo-git,cacheKey=zeroclaw-cargo-git,target=/usr/local/cargo/git,sharing=locked \
-    --mount=type=cache,id=zeroclaw-target,cacheKey=zeroclaw-target,target=/app/target,sharing=locked \
+RUN --mount=type=cache,id=cacheKey:zeroclaw-cargo-registry,target=/usr/local/cargo/registry,sharing=locked \
+    --mount=type=cache,id=cacheKey:zeroclaw-cargo-git,target=/usr/local/cargo/git,sharing=locked \
+    --mount=type=cache,id=cacheKey:zeroclaw-target,target=/app/target,sharing=locked \
     rm -rf target/release/.fingerprint/zeroclawlabs-* \
            target/release/deps/zeroclawlabs-* \
            target/release/incremental/zeroclawlabs-* && \
