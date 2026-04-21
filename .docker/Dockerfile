@@ -19,7 +19,10 @@ RUN apt-get update && apt-get install -y \
         pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy every workspace-member manifest - root Cargo.toml NOT copied to avoid workspace conflicts
+# Copy workspace root - required for Cargo to find workspace members
+COPY Cargo.toml Cargo.lock ./
+
+# Copy every workspace-member manifest
 COPY crates/aardvark-sys/Cargo.toml crates/aardvark-sys/build.rs ./
 COPY crates/robot-kit/Cargo.toml ./
 COPY crates/zeroclaw-api/Cargo.toml ./
