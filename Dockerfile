@@ -53,8 +53,6 @@ RUN mkdir -p src benches apps/tauri/src \
     && for d in crates/*/; do mkdir -p "${d}src" && printf '' > "${d}src/lib.rs"; done
 RUN --mount=type=cache,id=s/b0abd03e-ac0a-45e8-ab69-3f819dbb9321-cargo-registry,target=/usr/local/cargo/registry,sharing=locked \
     --mount=type=cache,id=s/b0abd03e-ac0a-45e8-ab69-3f819dbb9321-cargo-git,target=/usr/local/cargo/git,sharing=locked \
-    --mount=type=cache,id=s/b0abd03e-ac0a-45e8-ab69-3f819dbb9321-app-target,target=/app/target,sharing=locked \
-    rm -rf target && \
     if [ -n "$ZEROCLAW_CARGO_FEATURES" ]; then \
       cargo build --release --locked --features "$ZEROCLAW_CARGO_FEATURES"; \
     else \
@@ -69,7 +67,6 @@ COPY *.rs .
 RUN touch src/main.rs
 RUN --mount=type=cache,id=s/b0abd03e-ac0a-45e8-ab69-3f819dbb9321-cargo-registry,target=/usr/local/cargo/registry,sharing=locked \
     --mount=type=cache,id=s/b0abd03e-ac0a-45e8-ab69-3f819dbb9321-cargo-git,target=/usr/local/cargo/git,sharing=locked \
-    --mount=type=cache,id=s/b0abd03e-ac0a-45e8-ab69-3f819dbb9321-app-target,target=/app/target,sharing=locked \
     rm -rf target && \
     cargo build --release --locked && \
     cp target/release/zeroclaw /app/zeroclaw && \
